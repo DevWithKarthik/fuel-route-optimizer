@@ -28,7 +28,16 @@ def get_route(start_lat, start_lon, end_lat, end_lon):
         timeout=30,
     )
 
-    response.raise_for_status()
+    if not response.ok:
+        try:
+            error_data = response.json()
+            raise Exception(
+                f"Valhalla error: {error_data.get('error', response.text)}"
+            )
+        except ValueError:
+            raise Exception(
+                f"Valhalla error {response.status_code}: {response.text}"
+            )
 
     data = response.json()
 
